@@ -1,89 +1,109 @@
 //Declare dom elements via jquery
 const searchSat = $("#search");
 
+//readies the time to be displayed to the user
 function displayTime(i) {
   return i.toString().substring(0, 19);
 }
+
+//populates the output box with the satellite data
+//input is either an error message, or the sat data
+//input must be a string, and CAN be html code
+function addText(input) {
+  $("div.user-output").addClass("on");
+  setTimeout(function () {
+    delay(input);
+  }, 1500);
+  return;
+}
+
+//this assists the transition function in the css. until this function is called,
+//the output text will not exist in the DOM.
+function delay(input) {
+  const outputTextField = $("div.output-text-field");
+  $(outputTextField).html(input).addClass("on-text");
+  return;
+}
+
+
 
 //Will use the three text fields as inputs, to return the desired sattelite info
 //when the 'search' button is clicked
 $(searchSat).on("click", function () {
   //These are declared inside the scope of the function, so the user can re-enter
   //coords without reloading the page.
-  const apiKey = $("#api-key").val();
-  const address = $("#address").val();
-  const addressURI = encodeURI(address);
-  const norad = $("#norad").val();
+  $("div.user-output").removeClass("on");
+  $("div.output-text-field").removeClass("on-text");
 
-  //Using the async function
-  const search = async () => {
-    //Use the address input, after encoding for URI, to fetch the lat & log coordinates from mapbox
-    const rawData = await fetch(
-      `https://api.mapbox.com/geocoding/v5/mapbox.places/${addressURI}.json?access_token=${apiKey}`
-    );
 
-    const coords = await rawData.json();
+  let apiKey = $("#api-key").val();
+  let address = $("#address").val();
+  let norad = $("#norad").val();
 
-    //Inside the return from mapbox, are the desired coords
-    const longitude = coords.features[0].center[0];
-    const latitude = coords.features[0].center[1];
 
-    console.log(
-      "Address converted to coordinates: ",
-      latitude,
-      "by",
-      longitude
-    );
 
-    //Use the coords from mapbox, and the NORAD sat identifier, to fetch our satellite data
-    const rawSatData = await fetch(
-      `https://satellites.fly.dev/passes/${norad}?lat=-${latitude}&lon=${longitude}&limit=1&days=15&visible_only=true`
-    );
 
-    const flyover = await rawSatData.json();
+  //If any of the fields are empty, display an error message
+  if (apiKey === "" || address === "" || norad === "") {
+    addText("Invalid Entry");
+    return;
+  } else {
+    //encode the geographic address string, as a URI
+    const addressURI = encodeURI(address);
 
-    console.log(flyover);
+    const search = async () => {
+      //Use the address input, after encoding for URI, to fetch the lat & log coordinates from mapbox
+      const rawData = await fetch(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${addressURI}.json?access_token=${apiKey}`
+      );
 
-    //Store the sat flyover data
-    const rise = flyover[0].rise.utc_datetime;
-    const culminate = flyover[0].culmination.utc_datetime;
-    const set = flyover[0].set.utc_datetime;
+      const coords = await rawData.json();
 
-    // console.log(
-    //   "Satellite", norad, "will rise at -", rise,
-    //   "\n",
-    //   "Satellite", norad,
-    //   "will culminate at -", culminate,
-    //   "\n",
-    //   "Satellite",  norad,  "will set at -", set,
-    //   "\n"
-    // );
+      console.log(typeof coords);
 
-    console.log("Your rise time is,", displayTime(rise));
-    console.log("Your culminate time is,", displayTime(culminate));
-    console.log("Your set time is,", displayTime(set));
+      //Inside the return from mapbox, are the desired coords
+      const longitude = coords.features[0].center[0];
+      const latitude = coords.features[0].center[1];
 
-    const riseTime = displayTime(rise);
-    const culminateTime = displayTime(culminate);
-    const setTime = displayTime(set);
+      console.log(
+        "Address converted to coordinates: ",
+        latitude,
+        "by",
+        longitude
+      );
 
-    $("div.user-output").addClass("on");
+      //Use the coords from mapbox, and the NORAD sat identifier, to fetch our satellite data
+      const rawSatData = await fetch(
+        `https://satellites.fly.dev/passes/${norad}?lat=-${latitude}&lon=${longitude}&limit=1&days=15&visible_only=true`
+      );
 
-    const outputBox = $("div.on");
+      const flyover = await rawSatData.json();
 
-    const outputText =
-      "Your rise time is " +
-      riseTime +
-      "<br />" +
-      "Your culminate time is " +
-      culminateTime +
-      "<br />" +
-      "Your set time is " +
-      setTime;
+      //Store the sat flyover data
+      const rise = flyover[0].rise.utc_datetime;
+      const culminate = flyover[0].culmination.utc_datetime;
+      const set = flyover[0].set.utc_datetime;
 
-    $(outputBox).html(outputText);
-      
-  };
+      console.log("Your rise time is,", displayTime(rise));
+      console.log("Your culminate time is,", displayTime(culminate));
+      console.log("Your set time is,", displayTime(set));
 
-  search();
+      const riseTime = displayTime(rise);
+      const culminateTime = displayTime(culminate);
+      const setTime = displayTime(set);
+
+      const outputText =
+        "Your rise time is " +
+        riseTime +
+        "<br />" +
+        "Your culminate time is " +
+        culminateTime +
+        "<br />" +
+        "Your set time is " +
+        setTime;
+
+      addText(outputText);
+    };
+    search();
+  }return
 });

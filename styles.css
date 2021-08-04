@@ -1,6 +1,7 @@
 * {
     font-family: 'Roboto', sans-serif;
     color: #03045e;
+    box-sizing: border-box;
 }
 
 body {
@@ -84,12 +85,26 @@ button:hover {
     height: 0px;
     width: 0px;
     margin-bottom: 24px;
-    background-color: red;
+    background-color: #8FE0EF;
+    transition: 2s;
 }
 
 .on {
-    transition: 1s;
-    height: 150px;
-    width: 65vw;
 
+    transition: height 3s, width 0.25s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100px;
+    width: 400px;
+    
+}
+
+.output-text-field {
+    opacity: 0;
+}
+
+.on-text {
+    transition: 1s;
+    opacity: 100;
 }
