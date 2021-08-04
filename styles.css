@@ -79,3 +79,17 @@ button {
 button:hover {
     box-shadow: 0 0 20px #caf0f8;
 }
+
+.user-output {
+    height: 0px;
+    width: 0px;
+    margin-bottom: 24px;
+    background-color: red;
+}
+
+.on {
+    transition: 1s;
+    height: 150px;
+    width: 65vw;
+
+}

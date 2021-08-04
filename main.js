@@ -1,17 +1,13 @@
 //Declare dom elements via jquery
-const search = $("#search");
+const searchSat = $("#search");
 
 function displayTime(i) {
-
-    // console.log(i);
-    // console.log(typeof i);
-
-    return i.toString().substring(0, 19);
-};
+  return i.toString().substring(0, 19);
+}
 
 //Will use the three text fields as inputs, to return the desired sattelite info
 //when the 'search' button is clicked
-$(search).on("click", function () {
+$(searchSat).on("click", function () {
   //These are declared inside the scope of the function, so the user can re-enter
   //coords without reloading the page.
   const apiKey = $("#api-key").val();
@@ -66,6 +62,27 @@ $(search).on("click", function () {
     console.log("Your rise time is,", displayTime(rise));
     console.log("Your culminate time is,", displayTime(culminate));
     console.log("Your set time is,", displayTime(set));
+
+    const riseTime = displayTime(rise);
+    const culminateTime = displayTime(culminate);
+    const setTime = displayTime(set);
+
+    $("div.user-output").addClass("on");
+
+    const outputBox = $("div.on");
+
+    const outputText =
+      "Your rise time is " +
+      riseTime +
+      "<br />" +
+      "Your culminate time is " +
+      culminateTime +
+      "<br />" +
+      "Your set time is " +
+      setTime;
+
+    $(outputBox).html(outputText);
+      
   };
 
   search();
